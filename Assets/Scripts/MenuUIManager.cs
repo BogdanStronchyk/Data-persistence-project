@@ -19,7 +19,7 @@ public class MenuUIManager : MonoBehaviour
 
     private void Start()
     {
-        DataHandler.Instance.LoadScore();
+        //DataHandler.Instance.ReadFromSave();
         BestScoreText.text = $"Best score: {DataHandler.Instance.Name} : {DataHandler.Instance.BestScore}";
     }
 
@@ -39,6 +39,11 @@ public class MenuUIManager : MonoBehaviour
         
     }
 
+    public void ToScoreTable()
+    {
+        SceneManager.LoadScene(2);
+    }
+
     IEnumerator Timer(int seconds)
     {
         yield return new WaitForSeconds(seconds);
@@ -49,7 +54,7 @@ public class MenuUIManager : MonoBehaviour
 
     public void Exit()
     {
-        DataHandler.Instance.SaveScore();
+        //DataHandler.Instance.SaveScoreTable();
 #if UNITY_EDITOR
         EditorApplication.ExitPlaymode();
 #else

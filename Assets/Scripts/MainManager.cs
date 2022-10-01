@@ -26,7 +26,7 @@ public class MainManager : MonoBehaviour
     void Start()
     {
         PlayerNameNew = DataHandler.Instance.Name;
-        DataHandler.Instance.LoadScore();
+        //DataHandler.Instance.ReadFromSave();
         BestScoreText.text = $"Best score: {DataHandler.Instance.Name} : {DataHandler.Instance.BestScore}";
 
         const float step = 0.6f;
@@ -80,12 +80,11 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
-        if (m_Points > DataHandler.Instance.BestScore)
-        {
-            DataHandler.Instance.BestScore = m_Points;
-            DataHandler.Instance.Name = PlayerNameNew;
-            DataHandler.Instance.SaveScore();
-        }
+
+        DataHandler.Instance.BestScore = m_Points;
+        DataHandler.Instance.Name = PlayerNameNew;
+        DataHandler.Instance.SaveScoreTable();
+
         
     }
 }

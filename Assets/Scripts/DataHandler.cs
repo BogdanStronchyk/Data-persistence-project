@@ -1,17 +1,17 @@
-using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 using System.IO;
-using UnityEngine.UI;
 
 public class DataHandler : MonoBehaviour
 {
 
     public static DataHandler Instance;
 
-    public string Name;
-    public int BestScore;
+    public string Name = "Player";
+    public int BestScore = 0;
+    
+    public List<SaveData> ScoreList;
 
 
     private void Awake()
@@ -23,14 +23,76 @@ public class DataHandler : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
-
     }
 
     [System.Serializable]
-    class SaveData
+    public class SaveData
     {
         public int HighScore;
         public string PlayerName;
+    }
+
+    public void SaveScoreTable()
+    {
+        SaveData data = new SaveData(); // creating new player data instance
+        
+        // saving player's data
+        data.HighScore = BestScore;
+        data.PlayerName = Name;
+        
+        
+        ScoreList.Add(data); // adding player's data into a list
+        List<SaveData> sorted = ScoreList.OrderBy(x => x.HighScore).ToList(); // sorting the list
+        
+        string path = Application.persistentDataPath + "/savefiletable.json";
+        File.Delete(path);
+        foreach (SaveData dataset in sorted)
+        {
+            SaveScoreToFile(dataset);
+        }
+        // serializing data and saving them into file
+        
+    }
+
+    public void SaveScoreToFile(SaveData data)
+    {
+        string path = Application.persistentDataPath + "/savefiletable.json";
+        
+        // serializing data and saving them into file
+        string json = JsonUtility.ToJson(data);
+        File.AppendAllText(Application.persistentDataPath + "/savefiletable.json", json);
+    }
+
+    public void ReadFromSave()
+    {
+        string path = Application.persistentDataPath + "/savefiletable.json";
+        if (File.Exists(path))
+        {
+            string[] json = File.ReadAllLines(path);
+            ScoreList.Clear();
+            foreach(string line in json)
+            {
+                SaveData data = JsonUtility.FromJson<SaveData>(line);
+                if (line == json.First())
+                {
+                    Name = data.PlayerName;
+                    BestScore = data.HighScore;
+                }
+                ScoreList.Add(data);
+
+            }
+                
+        }
+    }
+
+    public void ResetScore()
+    {
+        //ReadFromSave();
+        string path = Application.persistentDataPath + "/savefiletable.json";
+        File.Delete(path);
+        ScoreList.Clear();
+        Name = "Player";
+        BestScore = 0;
     }
 
     public void SaveScore()
