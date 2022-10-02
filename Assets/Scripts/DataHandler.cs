@@ -1,8 +1,8 @@
-using System.Linq;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Linq;
 using System.IO;
 using System;
+using UnityEngine;
 
 public class DataHandler : MonoBehaviour
 {
@@ -85,7 +85,7 @@ public class DataHandler : MonoBehaviour
 
 
         /* For those who might review this piece of art (you know what i mean..)
-         * I was struggling with two options: sort the list, remove the last(minimum)
+         * I was struggling between two options: sort the list, remove the last(minimum)
          * players score, adding a new entry to the list and then sorting it again
          * or to do what I did. I didn't found any info abt a big O of OrderBy()
          * sorting method, so I'm curious if twice-sorting actually faster then iterating
@@ -110,7 +110,7 @@ public class DataHandler : MonoBehaviour
 
     /// <summary>
     /// This function reads data from a save file back into the list and
-    /// gets the bast players name and score into the separate variables
+    /// gets the best players name and score into the separate variables
     /// </summary>
     public void Load()
     {
