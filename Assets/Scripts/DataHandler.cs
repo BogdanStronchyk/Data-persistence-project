@@ -35,10 +35,19 @@ public class DataHandler : MonoBehaviour
         public string PlayerName;
     }
 
-
-    public void SaveScoreTable()
+    public void Save()
     {
-        SaveData data = new SaveData(); // creating new player data instance
+        SaveScoreToList();
+        SaveScoreToFile();
+    }
+
+    /// <summary>
+    /// This function saves data into a list and sorting it by descending score
+    /// </summary>
+    public void SaveScoreToList()
+    {
+        // creating a new player data container instance
+        SaveData data = new SaveData(); 
 
         // saving player's data
         data.HighScore = BestScore;
@@ -49,10 +58,10 @@ public class DataHandler : MonoBehaviour
         {
             ScoreList.Add(data);
         }
-        // but if it is:
-        else if (ScoreList.Count == 10)
+        // but if it is, and the new score exceeds the last one:
+        else if (ScoreList.Count == 10 && BestScore > ScoreList.Last().HighScore)
         {
-            // we look for a smallest score
+            // we look for a smallest score in the list
             int index = 0;
             int[] scores = new int[10];
             foreach (SaveData dataset in ScoreList)
@@ -60,24 +69,37 @@ public class DataHandler : MonoBehaviour
                 scores[index] = dataset.HighScore;
                 index += 1;
             }
+            
+            // there it is!
             int min_index = Array.IndexOf(scores, scores.Min());
 
             // removing it and adding a new dataset to the list
             ScoreList.RemoveAt(min_index);
             ScoreList.Add(data);
+            
+            
         }
 
         // sorting the list
-        List<SaveData> sorted = ScoreList.OrderByDescending(x => x.HighScore).ToList();
+        ScoreList = ScoreList.OrderByDescending(x => x.HighScore).ToList();
 
-        // and then saving it
-        SaveScoreToFile(sorted);
+
+        /* For those who might review this piece of art (you know what i mean..)
+         * I was struggling with two options: sort the list, remove the last(minimum)
+         * players score, adding a new entry to the list and then sorting it again
+         * or to do what I did. I didn't found any info abt a big O of OrderBy()
+         * sorting method, so I'm curious if twice-sorting actually faster then iterating
+         * especially on a large data sets. Please share your opinion on that
+         * */
     }
 
-    public void SaveScoreToFile(List<SaveData> data)
+    /// <summary>
+    /// This function saves data into a json file from the list entry by entry
+    /// </summary>
+    public void SaveScoreToFile()
     {
         string json = "";
-        foreach (SaveData dataset in data)
+        foreach (SaveData dataset in ScoreList)
         {
             json += JsonUtility.ToJson(dataset);
             json += '\n';
@@ -86,7 +108,11 @@ public class DataHandler : MonoBehaviour
         File.WriteAllText(path, json);
     }
 
-    public void ReadFromSave()
+    /// <summary>
+    /// This function reads data from a save file back into the list and
+    /// gets the bast players name and score into the separate variables
+    /// </summary>
+    public void Load()
     {
         if (File.Exists(path))
         {
@@ -111,36 +137,10 @@ public class DataHandler : MonoBehaviour
 
     public void ResetScore()
     {
-        //ReadFromSave();
         File.Delete(path);
         ScoreList.Clear();
         Name = "Player";
         BestScore = 0;
-    }
-
-    public void SaveScore()
-    {
-        SaveData data = new SaveData();
-        data.HighScore = BestScore;
-        data.PlayerName = Name;
-
-        string json = JsonUtility.ToJson(data);
-
-        File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
-
-        Debug.Log("Saved.");
-    }
-
-    public void LoadScore()
-    {
-        string path = Application.persistentDataPath + "/savefile.json";
-        if (File.Exists(path))
-        {
-            string json = File.ReadAllText(path);
-            SaveData data = JsonUtility.FromJson<SaveData>(json);
-            Name = data.PlayerName;
-            BestScore = data.HighScore;
-        }
     }
 
 }

@@ -12,7 +12,7 @@ public class TableUI : MonoBehaviour
     
     void Start()
     {
-        DataHandler.Instance.ReadFromSave();
+        DataHandler.Instance.Load();
         List<DataHandler.SaveData> scoreData = DataHandler.Instance.ScoreList;
         int len = scoreData.Count;
         int i;
@@ -33,12 +33,10 @@ public class TableUI : MonoBehaviour
     {
         DataHandler.Instance.ResetScore();
         SceneManager.LoadScene(2);
-        Debug.Log("Reset button pressed");
     }
 
     public void BackToMenu()
     {
         SceneManager.LoadScene(0);
-        Debug.Log("Back button pressed");
     }
 }

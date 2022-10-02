@@ -19,7 +19,7 @@ public class MenuUIManager : MonoBehaviour
 
     private void Start()
     {
-        DataHandler.Instance.ReadFromSave();
+        DataHandler.Instance.Load();
         BestScoreText.text = $"Best score: {DataHandler.Instance.Name} : {DataHandler.Instance.BestScore}";
     }
 
