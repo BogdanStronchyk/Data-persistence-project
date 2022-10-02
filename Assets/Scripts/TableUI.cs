@@ -5,25 +5,26 @@ using TMPro;
 using UnityEngine.SceneManagement;
 public class TableUI : MonoBehaviour
 {
-    public Canvas canvas;
+    public GameObject canvas;
     public TextMeshProUGUI PlaceInListTemplate;
     public GameObject Buttons;
 
     
     void Start()
     {
-        //DataHandler.Instance.ReadFromSave();
-        int len = DataHandler.Instance.ScoreList.Count;
+        DataHandler.Instance.ReadFromSave();
+        List<DataHandler.SaveData> scoreData = DataHandler.Instance.ScoreList;
+        int len = scoreData.Count;
         int i;
         for (i = 0; i < len; i++)
         {
             TextMeshProUGUI PlaceInListClone = Instantiate(PlaceInListTemplate);
 
             PlaceInListClone.transform.SetParent(canvas.transform, false);
-            //PlaceInListClone.transform.parent = canvas.transform;
             Vector3 TemplatePosition = PlaceInListTemplate.GetComponent<RectTransform>().position;
-            TemplatePosition.y = 80 - (80 * i);
+            TemplatePosition.y += 60 - (60 * i);
             PlaceInListClone.GetComponent<RectTransform>().position = TemplatePosition;
+            PlaceInListClone.text = $"{i + 1}. {scoreData[i].PlayerName}: {scoreData[i].HighScore}";
             PlaceInListClone.gameObject.SetActive(true);
         }
     }

@@ -44,14 +44,15 @@ public class DataHandler : MonoBehaviour
         data.HighScore = BestScore;
         data.PlayerName = Name;
 
-        // adding player's data into a list
+        // adding player's data into a list if it's not overfilled
         if (ScoreList.Count < 10)
         {
             ScoreList.Add(data);
-            // sorting the list
         }
+        // but if it is:
         else if (ScoreList.Count == 10)
         {
+            // we look for a smallest score
             int index = 0;
             int[] scores = new int[10];
             foreach (SaveData dataset in ScoreList)
@@ -60,22 +61,16 @@ public class DataHandler : MonoBehaviour
                 index += 1;
             }
             int min_index = Array.IndexOf(scores, scores.Min());
+
+            // removing it and adding a new dataset to the list
             ScoreList.RemoveAt(min_index);
             ScoreList.Add(data);
         }
 
+        // sorting the list
+        List<SaveData> sorted = ScoreList.OrderByDescending(x => x.HighScore).ToList();
 
-        List<SaveData> sorted = ScoreList.OrderBy(x => x.HighScore).ToList();
-        sorted.Reverse();
-
-        /*
-        string json = "";
-        foreach (SaveData dataset in sorted)
-        {
-            json += JsonUtility.ToJson(dataset);
-            json += '\n';
-        }
-        */
+        // and then saving it
         SaveScoreToFile(sorted);
     }
 
