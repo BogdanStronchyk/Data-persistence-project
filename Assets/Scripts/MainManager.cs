@@ -26,7 +26,7 @@ public class MainManager : MonoBehaviour
     void Start()
     {
         PlayerNameNew = DataHandler.Instance.Name;
-        //DataHandler.Instance.ReadFromSave();
+        DataHandler.Instance.ReadFromSave();
         BestScoreText.text = $"Best score: {DataHandler.Instance.Name} : {DataHandler.Instance.BestScore}";
 
         const float step = 0.6f;

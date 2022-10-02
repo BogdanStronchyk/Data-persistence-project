@@ -2,6 +2,7 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System;
 
 public class DataHandler : MonoBehaviour
 {
@@ -11,11 +12,13 @@ public class DataHandler : MonoBehaviour
     public string Name = "Player";
     public int BestScore = 0;
     
-    public List<SaveData> ScoreList;
+    public List<SaveData> ScoreList = new List<SaveData>(10);
 
+    string path;
 
     private void Awake()
     {
+        path = Application.persistentDataPath + "/savefiletable.json";
         if (Instance != null)
         {
             Destroy(gameObject);
@@ -32,63 +35,88 @@ public class DataHandler : MonoBehaviour
         public string PlayerName;
     }
 
+
     public void SaveScoreTable()
     {
         SaveData data = new SaveData(); // creating new player data instance
-        
+
         // saving player's data
         data.HighScore = BestScore;
         data.PlayerName = Name;
-        
-        
-        ScoreList.Add(data); // adding player's data into a list
-        List<SaveData> sorted = ScoreList.OrderBy(x => x.HighScore).ToList(); // sorting the list
-        
-        string path = Application.persistentDataPath + "/savefiletable.json";
-        File.Delete(path);
+
+        // adding player's data into a list
+        if (ScoreList.Count < 10)
+        {
+            ScoreList.Add(data);
+            // sorting the list
+        }
+        else if (ScoreList.Count == 10)
+        {
+            int index = 0;
+            int[] scores = new int[10];
+            foreach (SaveData dataset in ScoreList)
+            {
+                scores[index] = dataset.HighScore;
+                index += 1;
+            }
+            int min_index = Array.IndexOf(scores, scores.Min());
+            ScoreList.RemoveAt(min_index);
+            ScoreList.Add(data);
+        }
+
+
+        List<SaveData> sorted = ScoreList.OrderBy(x => x.HighScore).ToList();
+        sorted.Reverse();
+
+        /*
+        string json = "";
         foreach (SaveData dataset in sorted)
         {
-            SaveScoreToFile(dataset);
+            json += JsonUtility.ToJson(dataset);
+            json += '\n';
         }
-        // serializing data and saving them into file
-        
+        */
+        SaveScoreToFile(sorted);
     }
 
-    public void SaveScoreToFile(SaveData data)
+    public void SaveScoreToFile(List<SaveData> data)
     {
-        string path = Application.persistentDataPath + "/savefiletable.json";
-        
-        // serializing data and saving them into file
-        string json = JsonUtility.ToJson(data);
-        File.AppendAllText(Application.persistentDataPath + "/savefiletable.json", json);
+        string json = "";
+        foreach (SaveData dataset in data)
+        {
+            json += JsonUtility.ToJson(dataset);
+            json += '\n';
+        }
+        Debug.Log(json);
+        File.WriteAllText(path, json);
     }
 
     public void ReadFromSave()
     {
-        string path = Application.persistentDataPath + "/savefiletable.json";
         if (File.Exists(path))
         {
             string[] json = File.ReadAllLines(path);
+            
             ScoreList.Clear();
+            
             foreach(string line in json)
             {
                 SaveData data = JsonUtility.FromJson<SaveData>(line);
-                if (line == json.First())
+                
+                if (line == json[0])
                 {
                     Name = data.PlayerName;
                     BestScore = data.HighScore;
                 }
-                ScoreList.Add(data);
 
+                ScoreList.Add(data);
             }
-                
         }
     }
 
     public void ResetScore()
     {
         //ReadFromSave();
-        string path = Application.persistentDataPath + "/savefiletable.json";
         File.Delete(path);
         ScoreList.Clear();
         Name = "Player";
